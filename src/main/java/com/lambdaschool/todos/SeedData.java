@@ -1,12 +1,20 @@
 package com.lambdaschool.todos;
-
+import com.github.javafaker.Faker;
 import com.lambdaschool.todos.models.Todos;
 import com.lambdaschool.todos.models.User;
 import com.lambdaschool.todos.services.UserService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.Email;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.zip.DataFormatException;
 
 /**
  * SeedData puts both known and random data into the database. It implements CommandLineRunner.
@@ -81,5 +89,39 @@ public class SeedData implements CommandLineRunner
             "password",
             "misskitty@school.lambda");
         userService.save(u5);
+
+
+
+        var emailprovider = new String[] {"gmail.com", "hey.com", "hotmail.com", "yahoo.com", "lambdastudents.com"};
+
+
+        Faker fake = new Faker(new Locale("en-US"));
+        Set<String> names = new HashSet<>();
+
+        for (int i = 0; i < 100; i++) {
+            names.add(fake.name().fullName());
+        }
+
+
+        for(String namei : names){
+            String username = namei.replaceAll(" ","") + fake.random().nextInt(10) + fake.random().nextInt(10);
+            String email = namei.replaceAll(" ","").replaceAll("\\.","") + "@" + emailprovider[fake.random().nextInt(5)];
+//            System.out.println(email);
+            String pass = RandomStringUtils.random( fake.random().nextInt(10)+6, true, true );
+
+            User newu = new User(username,pass,email);
+
+
+            newu.getTodos().clear();
+            for (int i = 0; i < fake.random().nextInt(4); i++) {
+                newu.getTodos().add(new Todos(newu, fake.elderScrolls().creature()));
+            }
+
+            userService.save(newu);
+        }
+
+
+
+
     }
 }
